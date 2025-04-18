@@ -16,6 +16,7 @@ dotenv.config();
 const PORT = process.env.PORT;
 const __dirname = path.resolve();
 
+
 app.use(express.json({ limit: '10mb' })); // or higher, if needed
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
@@ -29,9 +30,16 @@ app.use('/api/messages', messageRoutes);
 
 if (process.env.NODE_ENV === "production") {
     app.use(express.static(path.join(__dirname, "../frontend/dist")));
-
-    app.get("*", (req, res) => {
-        res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
+    
+    
+    app.get(/.*/, (req, res) => {
+        const filePath = path.join(__dirname, "../frontend/dist/index.html");
+        res.sendFile(filePath, (err) => {
+          if (err) {
+            console.error("Error sending file:", err);
+            res.status(500).send("Internal Server Error");
+          }
+        });
     });
 }
 
